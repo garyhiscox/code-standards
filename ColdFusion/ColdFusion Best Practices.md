@@ -20,52 +20,54 @@ In this example we'll see a CFC and CFM page using scopes correctly.
 
 **Example CFC**
 ```js
-component output="false" {
-   this.OT_MULTIPLIER = 1.5;
-   this.HOURS_PER_WEEK = 40;
+component {
+   this.OverTimeMultiplier = 1.5;
+   this.HoursPerWeek = 40;
 
-   public PayService function init() output="false" {
-      variables.otCalculatorService = new OTCalculatorService(
-         hoursPerWeek=this.HOURS_PER_WEEK
+   public PayService function init() {
+      variables.OverTimeCalculatorService = new OverTimeCalculatorService(
+         HoursPerWeek=this.HoursPerWeek
       );
 
       return this;
    }
 
    public numeric function calculateWeeklyPay(
-         required Employee employeeRecord,
-         required numeric hoursWorked
+         required Employee EmployeeRecord,
+         required numeric HoursWorked
    ) {
-      local.otHours = variables.otCalculatorService.determineOTHours(
-         hoursWorked=arguments.hoursWorked
-      );
-      local.regularHours = arguments.hoursWorked - otHours;
-
-      local.regularPay = calculateRegularPay(
-         employeeRecord=arguments.employeeRecord,
-         hours=local.regularHours
-      );
-      local.otPay = calculateOTPay(
-         employeeRecord=arguments.employeeRecord,
-         hours=local.otHours
+      var OverTimeHours = variables.OvertimeCalculatorService.determineOTHours(
+         HoursWorked=arguments.HoursWorked
       );
 
-      return local.regularPay + local.otPay;
+      var RegularHours = arguments.HoursWorked - OverTimeHours;
+
+      var RegularPay = calculateRegularPay(
+         EmployeeRecord=arguments.EmployeeRecord,
+         Hours=RegularHours
+      );
+
+      var OverTimePay = calculateOverTimePay(
+         EmployeeRecord=arguments.EmployeeRecord,
+         Hours=OverTimeHours
+      );
+
+      return RegularPay + OverTimePay;
    }
 
    public numeric function calculateRegularPay(
-         required Employee employeeRecord,
-         required numeric hours
+         required Employee EmployeeRecord,
+         required numeric Hours
    ) {
-      return arguments.hours * arguments.employeeRecord.hourlySalary;
+      return arguments.Hours * arguments.EmployeeRecord.HourlySalary;
    }
 
-   public numeric function calculateOTPay(
-         required Employee employeeRecord,
-         required numeric hours
+   public numeric function calculateOverTimePay(
+         required Employee EmployeeRecord,
+         required numeric Hours
    ) {
       return arguments.hours * (
-         arguments.employeeRecord.hourlySalary * this.OT_MULTIPLIER
+         arguments.EmployeeRecord.HourlySalary * this.OverTimeMultiplier
       );
    }
 }
@@ -89,8 +91,8 @@ component output="false" {
 ------------
 
 ### 2.1 Scoping in Functions
-* All variables *must be* prefixed with a scope
-* Local variables *must be* declared using the form ```local.myVariable```
+* Use the var keywork to scope variables local to the function
+* Local variables *must be* declared using the form ```var MyVariable```
 
 ### 2.2 Naming
 Functions perform actions. As such they should make use of verbs. Furthermore
@@ -99,8 +101,8 @@ out what they are doing and to what they are performing this action on.
 
 **Example**
 ```js
-public array function splitSentenceIntoWords(required string sentence) output="false" {
-   return arguments.sentence.split(" ");
+public array function splitSentenceIntoWords(required string Sentence) {
+   return arguments.Sentence.split(" ");
 }
 ```
 
@@ -115,49 +117,53 @@ the domain.
 
 **Example: MailProcessor.cfc**
 ```js
-component output="false" {
-   public void function process(required numeric queueID) output="false" {
+component {
+   public void function process(required numeric QueueId) {
       // ...
    }
 }
 ```
 
 ### 2.3 Output
-It is rare that a function should directly send output to the browser. This is
+A function should never directly send output to the browser. This is
 the responsibility of a view page or rendering component. Exceptions to this would
 be if the function is part of a rendering component in a framework or system
 that outputs contents to the browser as part of the request process.
 
-As such all functions, unless they send content to the browser, *must* include
-the output attribute set to *false*.
-
 **Example**
 ```js
-public void function doSomething() output="false" {
+public void function doSomething() {
    // ...
 }
 ```
 
 ### 2.4 Calling Functions
-When calling user-defined functions in ColdFusion there are two ways it can
-be done. The first is *Ordered Arguments*, and the second is *Named Arguments*.
+When calling user-defined functions in ColdFusion it is prefered to use *Named Arguments*.
+
+**Example of Named Arguments**
+```js
+public numeric function ordered(
+  numeric Arg1,
+  numeric Arg2) {
+   //..
+}
+
+result = named(
+  Arg1=1,
+  Arg2=2
+);
+```
 
 **Example of Ordered Arguments**
 ```js
-public numeric function ordered(numeric arg1, numeric arg2) output="false" {
+public numeric function ordered(
+  numeric Arg1,
+  numeric Arg2
+) {
    //..
 }
 
 result = ordered(1, 2);
-```
-
-**Example of Named Arguments**
-```js
-public numeric function ordered(numeric arg1, numeric arg2) output="false" {
-   //..
-}
-
-result = named(arg1=1, arg2=2);
 ```
 
 In most situations using *Named Arguments* is prefered as it offers additional
@@ -168,7 +174,7 @@ reader of this code read it like a sentence? Is the intent clear?" Here is
 an example of where *Ordered Arguments* might be clearer.
 
 ```js
-public numeric function sum(numeric leftOperand, numeric rightOperand) output="false" {
+public numeric function sum(numeric leftOperand, numeric rightOperand) {
    return arguments.leftOperand + arguments.rightOperand;
 }
 
