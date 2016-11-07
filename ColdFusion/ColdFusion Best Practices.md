@@ -75,13 +75,13 @@ component {
 
 **Example CFM**
 ```cfm
-<cfset paragraphStyle = request.styles.getParagraphStyle() />
+<cfset request.ParagraphStyle = request.Styles.getParagraphStyle() />
 
 <cfoutput>
 
-<p class="#paragraphStyle#">
-   Hello #session.employee.name#.<br />
-   Your pay this week is #request.rc.employeePay#
+<p class="#request.ParagraphStyle#">
+   Hello #Session.Employee.Name#.<br />
+   Your pay this week is #request.rc.EmployeePay#
 </p>
 
 </cfoutput>
